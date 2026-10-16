@@ -1,0 +1,38 @@
+/*
+ * styles.css — global styles.
+ * Tailwind v4 entry plus the few custom rules Tailwind utilities cannot
+ * express (marker shapes, Leaflet popup overrides, add-mode cursor).
+ */
+
+@import "tailwindcss";
+
+/*
+ * Tailwind v4 changed the default border color to currentColor; the original
+ * app (Tailwind v3) relied on gray-200 borders and pointer buttons.
+ */
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+html, body { height: 100%; }
+
+/* Reference marker: teardrop pin with an emoji. */
+.pin {
+  display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+}
+.pin span { transform: rotate(45deg); font-size: 16px; line-height: 1; }
+
+/* User point marker: colored dot. */
+.dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .45); }
+
+.leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 14px; }
+.leaflet-popup-content { margin: 0; width: 230px !important; }
+
+#map.adding { cursor: crosshair; }
