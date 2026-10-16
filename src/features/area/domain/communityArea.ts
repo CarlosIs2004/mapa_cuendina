@@ -9,13 +9,13 @@ import { GeoBounds } from "./GeoBounds";
 
 /** Boundary reference points (the Av. Gral. Rumiñahui marks the eastern edge). */
 export const LIMIT_POINTS: readonly LatLng[] = [
-  new LatLng(-0.3758942828902126, -78.49456872010586),
-  new LatLng(-0.3873115067829975, -78.51212194292775),
-  new LatLng(-0.3665785483732827, -78.47564224197447),
-  new LatLng(-0.400356821282775, -78.50074857530066),
-  new LatLng(-0.3995853616717257, -78.48525482090285),
-  new LatLng(-0.39190074686962606, -78.4722071696194),
-  new LatLng(-0.37967150464754157, -78.47049213286999),
+  new LatLng(-0.39314438349830977, -78.50735664367677),
+  new LatLng(-0.38151459097529916, -78.51619720458986),
+  new LatLng(-0.3610014871800428, -78.49388122558595),
+  new LatLng(-0.39284398315515895, -78.51572513580324),
+  new LatLng(-0.39288689749056177, -78.49383831024171),
+  new LatLng(-0.39288689749056177, -78.4777879714966),
+  new LatLng(-0.3790684702359321, -78.47508430480958),
 ];
 
 /** Exact area: drawn as the dashed rectangle and used for export. */
