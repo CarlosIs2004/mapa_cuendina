@@ -23,11 +23,12 @@ import { ImportPointsUseCase } from "./features/points/application/ImportPointsU
 import { ListPointsUseCase } from "./features/points/application/ListPointsUseCase";
 import { LoadPointsUseCase } from "./features/points/application/LoadPointsUseCase";
 import { PointsStore } from "./features/points/application/PointsStore";
+import { SetVisitedUseCase } from "./features/points/application/SetVisitedUseCase";
 import { RemovePointUseCase } from "./features/points/application/RemovePointUseCase";
 import { CATEGORY_CATALOG } from "./features/points/domain/Category";
 import { REFERENCE_POINTS } from "./features/points/domain/referencePoints";
 import { LocalStoragePointRepository } from "./features/points/infrastructure/LocalStoragePointRepository";
-import { fetchSharedPoints } from "./features/points/infrastructure/SupabaseReferenceSource";
+import { fetchSharedPoints, saveVisited } from "./features/points/infrastructure/SupabaseReferenceSource";
 import { AddPointFlow } from "./features/points/presentation/AddPointFlow";
 import { CategoryFilters } from "./features/points/presentation/CategoryFilters";
 import { PointFormModal } from "./features/points/presentation/PointFormModal";
@@ -63,6 +64,11 @@ async function bootstrap(): Promise<void> {
   const sharedPoints = await fetchSharedPoints(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY).catch(() => []);
   const listPoints = new ListPointsUseCase(store, sharedPoints.length ? sharedPoints : REFERENCE_POINTS);
   const visiblePoints = new FilterPointsUseCase(listPoints, store);
+  store.setVisitedIds(sharedPoints.filter((p) => p.visited).map((p) => p.id));
+  const setVisited = new SetVisitedUseCase(
+    (id, visited) => saveVisited(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY, id, visited),
+    store,
+  );
   const loadPoints = new LoadPointsUseCase(repository, store);
   const addPoint = new AddPointUseCase(repository, store);
   const removePoint = new RemovePointUseCase(repository, store);
@@ -97,6 +103,9 @@ async function bootstrap(): Promise<void> {
     if (!window.confirm("¿Eliminar este punto?")) return;
     map.closePopup();
     await removePoint.execute(id);
+  });
+  map.onVisitedRequest(async (id, visited) => {
+    if (!(await setVisited.execute(id, visited))) window.alert("No se pudo guardar el estado. Intenta de nuevo.");
   });
   store.subscribe(() => map.showPoints(visiblePoints.execute()));
 

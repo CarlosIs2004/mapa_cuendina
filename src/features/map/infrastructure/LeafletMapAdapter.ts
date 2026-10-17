@@ -24,6 +24,9 @@ export interface LeafletMapOptions {
   catalog: CategoryCatalog;
 }
 
+const VISITED_COLOR = "#16a34a";
+const PENDING_COLOR = "#ef4444";
+
 const toLeaflet = (b: GeoBounds): L.LatLngBounds => L.latLngBounds([b.south, b.west], [b.north, b.east]);
 
 /** Leaflet-backed interactive map. */
@@ -34,6 +37,7 @@ export class LeafletMapAdapter implements MapView {
   private addMode = false;
   private pickHandler: (position: LatLng) => void = () => {};
   private deleteHandler: (pointId: string) => void = () => {};
+  private visitedHandler: (pointId: string, visited: boolean) => void = () => {};
 
   /** Creates the map inside `container`, initially framed on the view bounds. */
   constructor(
@@ -60,6 +64,9 @@ export class LeafletMapAdapter implements MapView {
       const btn = e.popup.getElement()?.querySelector<HTMLButtonElement>("[data-del]");
       const id = btn?.dataset.del;
       if (btn && id) btn.addEventListener("click", () => this.deleteHandler(id));
+      const visit = e.popup.getElement()?.querySelector<HTMLButtonElement>("[data-visit]");
+      const visitId = visit?.dataset.visit;
+      if (visit && visitId) visit.addEventListener("click", () => this.visitedHandler(visitId, visit.dataset.visited !== "true"));
     });
   }
 
@@ -69,6 +76,9 @@ export class LeafletMapAdapter implements MapView {
    */
   enableLimitEditor(points: readonly LatLng[]): void {
     const current = points.map((p) => ({ lat: p.lat, lng: p.lng }));
+    // Edit mode only: allow panning well beyond the limit to place new points.
+    const panLimit = this.map.options.maxBounds;
+    if (panLimit) this.map.setMaxBounds((panLimit as L.LatLngBounds).pad(1));
     current.forEach((p, i) => {
       L.marker([p.lat, p.lng], { draggable: true, zIndexOffset: 1000 })
         .bindTooltip(`${i}`, { permanent: true, direction: "top" })
@@ -86,7 +96,7 @@ export class LeafletMapAdapter implements MapView {
     this.layer.clearLayers();
     this.markers.clear();
     for (const p of points) {
-      const marker = L.marker([p.lat, p.lng], { icon: this.icon(this.options.catalog.get(p.category)) })
+      const marker = L.marker([p.lat, p.lng], { icon: this.icon(this.options.catalog.get(p.category), p) })
         .bindPopup(popupHtml(p, this.options.catalog))
         .addTo(this.layer);
       this.markers.set(p.id, marker);
@@ -115,27 +125,34 @@ export class LeafletMapAdapter implements MapView {
     this.deleteHandler = handler;
   }
 
+  /** Registers the handler for the popup visited toggle. */
+  onVisitedRequest(handler: (pointId: string, visited: boolean) => void): void {
+    this.visitedHandler = handler;
+  }
+
   /** Closes the open popup, if any. */
   closePopup(): void {
     this.map.closePopup();
   }
 
   /** Pin with emoji for categories with an icon, colored dot otherwise. */
-  private icon(c: Category): L.DivIcon {
+  private icon(c: Category, p: Point): L.DivIcon {
+    // Reference points show their visited state: green = visited, red = pending.
+    const color = p.isUserPoint ? c.color : p.visited ? VISITED_COLOR : PENDING_COLOR;
     if (c.usesPin)
       return L.divIcon({
         className: "",
         iconSize: [36, 36],
         iconAnchor: [18, 36],
         popupAnchor: [0, -34],
-        html: `<div class="pin" style="background:${c.color}"><span>${c.icon}</span></div>`,
+        html: `<div class="pin" style="background:${color}"><span>${c.icon}</span></div>`,
       });
     return L.divIcon({
       className: "",
       iconSize: [22, 22],
       iconAnchor: [11, 11],
       popupAnchor: [0, -10],
-      html: `<div class="dot" style="background:${c.color}"></div>`,
+      html: `<div class="dot" style="background:${color}"></div>`,
     });
   }
 }
