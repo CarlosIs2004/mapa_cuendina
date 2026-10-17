@@ -13,8 +13,9 @@ export class ListPointsUseCase {
     private readonly references: readonly Point[],
   ) {}
 
-  /** References first, then user points in creation order. */
+  /** References (with their visited state) first, then user points in creation order. */
   execute(): Point[] {
-    return [...this.references, ...this.store.state.userPoints];
+    const { visitedIds, userPoints } = this.store.state;
+    return [...this.references.map((p) => p.withVisited(visitedIds.has(p.id))), ...userPoints];
   }
 }

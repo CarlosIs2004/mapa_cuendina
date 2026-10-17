@@ -15,6 +15,7 @@ export interface PointSnapshot {
   lat: number;
   lng: number;
   description?: string;
+  visited?: boolean;
 }
 
 /** Data a user provides when creating a point. */
@@ -36,6 +37,7 @@ export class Point {
     readonly category: CategoryId,
     readonly position: LatLng,
     readonly description: string,
+    readonly visited: boolean = false,
   ) {}
 
   /** Creates a new user point; `now` makes the generated id deterministic in tests. */
@@ -47,7 +49,7 @@ export class Point {
 
   /** Rebuilds a point from trusted data (catalog constants, already validated input). */
   static fromSnapshot(s: PointSnapshot): Point {
-    return new Point(s.id, s.name, s.category, new LatLng(s.lat, s.lng), s.description ?? "");
+    return new Point(s.id, s.name, s.category, new LatLng(s.lat, s.lng), s.description ?? "", s.visited ?? false);
   }
 
   /**
@@ -62,7 +64,8 @@ export class Point {
       typeof v.name === "string" && v.name.trim() !== "" &&
       CATEGORY_CATALOG.has(v.category) &&
       LatLng.isValid(v.lat, v.lng) &&
-      (v.description === undefined || typeof v.description === "string");
+      (v.description === undefined || typeof v.description === "string") &&
+      (v.visited === undefined || typeof v.visited === "boolean");
     return valid ? Point.fromSnapshot(v as unknown as PointSnapshot) : null;
   }
 
@@ -81,6 +84,11 @@ export class Point {
     return !this.id.startsWith(REFERENCE_PREFIX);
   }
 
+  /** Copy of this point with the given visited state. */
+  withVisited(visited: boolean): Point {
+    return new Point(this.id, this.name, this.category, this.position, this.description, visited);
+  }
+
   /** Case-insensitive search over name and description. */
   matches(query: string): boolean {
     return `${this.name} ${this.description}`.toLowerCase().includes(query.toLowerCase());
@@ -88,6 +96,6 @@ export class Point {
 
   /** Serializable form for persistence. */
   toSnapshot(): PointSnapshot {
-    return { id: this.id, name: this.name, category: this.category, lat: this.lat, lng: this.lng, description: this.description };
+    return { id: this.id, name: this.name, category: this.category, lat: this.lat, lng: this.lng, description: this.description, ...(this.visited && { visited: true }) };
   }
 }

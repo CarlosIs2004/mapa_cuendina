@@ -12,11 +12,13 @@ import { PointFilter } from "../domain/PointFilter";
 export interface PointsState {
   userPoints: readonly Point[];
   filter: PointFilter;
+  /** Ids of reference points marked as visited. */
+  visitedIds: ReadonlySet<string>;
 }
 
 /** Holds application state and notifies subscribers after every change. */
 export class PointsStore extends Observable<PointsState> {
-  private current: PointsState = { userPoints: [], filter: new PointFilter() };
+  private current: PointsState = { userPoints: [], filter: new PointFilter(), visitedIds: new Set() };
 
   /** Current state snapshot (treat as read-only). */
   get state(): PointsState {
@@ -36,6 +38,19 @@ export class PointsStore extends Observable<PointsState> {
   /** Removes one user point from the state by id. */
   removeUserPoint(id: string): void {
     this.update({ userPoints: this.current.userPoints.filter((p) => p.id !== id) });
+  }
+
+  /** Replaces the visited reference ids (initial load). */
+  setVisitedIds(ids: Iterable<string>): void {
+    this.update({ visitedIds: new Set(ids) });
+  }
+
+  /** Marks or unmarks one reference point as visited. */
+  setVisited(id: string, visited: boolean): void {
+    const ids = new Set(this.current.visitedIds);
+    if (visited) ids.add(id);
+    else ids.delete(id);
+    this.update({ visitedIds: ids });
   }
 
   /** Updates the search query. */
