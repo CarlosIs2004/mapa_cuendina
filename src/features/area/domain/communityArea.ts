@@ -10,8 +10,8 @@ import { GeoBounds } from "./GeoBounds";
 /** Boundary reference points (the Av. Gral. Rumiñahui marks the eastern edge). */
 export const LIMIT_POINTS: readonly LatLng[] = [
   new LatLng(-0.3909986665249684, -78.52572441101076),
-  new LatLng(-0.37155844612431155, -78.52739810943605),
-  new LatLng(-0.35181778120698853, -78.49422454833986),
+  new LatLng(-0.3699706438191488, -78.5276555826159),
+  new LatLng(-0.34533781551028914, -78.49478240218458),
   new LatLng(-0.3862780872575675, -78.52675437927248),
   new LatLng(-0.3908270091433711, -78.4968423843384),
   new LatLng(-0.3900116365329006, -78.48293781280519),
