@@ -24,6 +24,7 @@ export interface LeafletMapOptions {
   catalog: CategoryCatalog;
 }
 
+const MIN_ZOOM = 15;
 const VISITED_COLOR = "#16a34a";
 const PENDING_COLOR = "#ef4444";
 
@@ -46,7 +47,9 @@ export class LeafletMapAdapter implements MapView {
   ) {
     const view = toLeaflet(options.viewBounds);
     const limit = toLeaflet(options.limitBounds);
-    this.map = L.map(container, { zoomControl: false, minZoom: 15, maxBounds: limit, maxBoundsViscosity: 1.0 }).fitBounds(view);
+    this.map = L.map(container, { zoomControl: false, zoomSnap: 0.25, maxBounds: limit, maxBoundsViscosity: 1.0 }).fitBounds(view);
+    // Small screens need a lower zoom than 15 to show the whole area at once.
+    this.map.setMinZoom(Math.min(MIN_ZOOM, this.map.getBoundsZoom(limit)));
     L.control.zoom({ position: "bottomright" }).addTo(this.map);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
