@@ -76,6 +76,9 @@ export class LeafletMapAdapter implements MapView {
           const { lat, lng } = (e.target as L.Marker).getLatLng();
           current[i] = { lat, lng };
           console.log(current.map((c) => `  new LatLng(${c.lat}, ${c.lng}),`).join("\n"));
+    // Edit mode only: allow panning well beyond the limit to place new points.
+    const panLimit = this.map.options.maxBounds;
+    if (panLimit) this.map.setMaxBounds((panLimit as L.LatLngBounds).pad(1));
         })
         .addTo(this.map);
     });
