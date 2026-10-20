@@ -16,10 +16,4 @@ create table if not exists lugares (
 alter table lugares enable row level security;
 create policy "lectura publica" on lugares for select using (true);
 
-insert into lugares (nombre, tipo, lat, lng, link_maps) values
-  ('Asalto / robo 1', 'robos', -0.385152, -78.510945,
-   'https://www.google.com/maps?q=-0.385152,-78.510945'),
-  ('Asalto / robo 2', 'robos', -0.38690138030862953, -78.50744694998298,
-   'https://www.google.com/maps?q=-0.38690138030862953,-78.50744694998298'),
-  ('Asalto / robo 3', 'robos', -0.3854215218788336, -78.50829869655665,
-   'https://www.google.com/maps?q=-0.3854215218788336,-78.50829869655665');
+-- Los puntos de robos están en robos.sql.
