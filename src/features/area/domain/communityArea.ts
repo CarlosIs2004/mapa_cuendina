@@ -14,8 +14,8 @@ export const LIMIT_POINTS: readonly LatLng[] = [
   new LatLng(-0.34533781551028914, -78.49478240218458),
   new LatLng(-0.3862780872575675, -78.52675437927248),
   new LatLng(-0.3908270091433711, -78.4968423843384),
-  new LatLng(-0.3900116365329006, -78.48293781280519),
-  new LatLng(-0.36387675771549916, -78.48220825195314),
+  new LatLng(-0.39211643521496226, -78.47074120471324),
+  new LatLng(-0.36440194764813816, -78.47066902999498),
 ];
 
 /** Exact area: drawn as the dashed rectangle and used for export. */
